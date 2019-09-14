@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.two</groupId>
-    <artifactId>serv-ceusers</artifactId>
+    <artifactId>service-users</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>service-users</name>
     <description>Users microservice.</description>
