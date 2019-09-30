@@ -5,8 +5,10 @@ import dev.testbed.TestBed;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.dao.DuplicateKeyException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -46,11 +48,27 @@ class UserServiceTest {
         assertThat(generatedTokens).isEqualTo(tokens);
     }
 
+    @Test
+    @DisplayName("it should throw a UserExistsException if the DAO raises a DuplicateKeyException")
+    void throwsUserExistsException() {
+        UserService userService = tb.whenStoreUserThrowDuplicateKeyException().build();
+
+        assertThatThrownBy(() -> userService.storeUser(userRegistration))
+                .isInstanceOf(UserExistsException.class)
+                .hasMessageContaining("An account with the email 'gerry@two.com' already exists.");
+    }
+
     class TestBuilder extends TestBed<UserService, TestBuilder> {
         TestBuilder() { super(UserService.class); }
 
         TestBuilder whenStoreUserReturn(int userId) {
             when(getDependency(UserDao.class).storeUser(any(UserRegistration.class))).thenReturn(userId);
+            return this;
+        }
+
+        TestBuilder whenStoreUserThrowDuplicateKeyException() {
+            when(getDependency(UserDao.class).storeUser(any(UserRegistration.class)))
+                    .thenThrow(DuplicateKeyException.class);
             return this;
         }
 

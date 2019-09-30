@@ -8,6 +8,7 @@ CREATE TABLE `users`.`user`
   `age`   INT          NOT NULL,
   PRIMARY KEY (`uid`),
   UNIQUE INDEX `uid_UNIQUE` (`uid` ASC) VISIBLE,
+  UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE,
   INDEX `fk_users_couples_cid_idx` (`cid` ASC) VISIBLE,
   CONSTRAINT `fk_users_couples_cid`
     FOREIGN KEY (`cid`)

@@ -6,6 +6,7 @@ import com.two.http_api.model.User;
 import lombok.AllArgsConstructor;
 import org.jooq.DSLContext;
 import org.jooq.generated.tables.records.UserRecord;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Repository;
 
 import static org.jooq.generated.Tables.USER;
@@ -19,17 +20,12 @@ public class UserDao {
 
     /**
      * @return the created users ID.
-     * @throws UserExistsException if the email exists in the users table.
+     * @exception DuplicateKeyException if the email exists in the users table.
      */
-    int storeUser(UserRegistration userRegistration) {
-        String email = userRegistration.getEmail();
-        if (ctx.fetchExists(ctx.selectFrom(USER).where(USER.EMAIL.eq(email)))) {
-            throw new UserExistsException(email);
-        }
-
+    int storeUser(UserRegistration userRegistration) throws DuplicateKeyException {
         UserRecord userRecord = ctx.newRecord(USER);
 
-        userRecord.setEmail(email);
+        userRecord.setEmail(userRegistration.getEmail());
         userRecord.setName(userRegistration.getName());
         userRecord.setAge(userRegistration.getAge());
 
