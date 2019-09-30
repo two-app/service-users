@@ -34,9 +34,9 @@ class UserDaoTest {
     private final UserDao usersDao;
 
     @Autowired
-    public UserDaoTest(Flyway flyway, DSLContext dslContext) {
+    public UserDaoTest(Flyway flyway, DSLContext ctx) {
         this.flyway = flyway;
-        this.ctx = dslContext;
+        this.ctx = ctx;
         this.authenticationServiceApi = mock(AuthenticationServiceApi.class);
         this.usersDao = new UserDao(this.ctx, this.authenticationServiceApi);
     }
