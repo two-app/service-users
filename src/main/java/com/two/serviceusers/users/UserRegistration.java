@@ -11,6 +11,7 @@ import javax.validation.constraints.Min;
 public class UserRegistration {
     @Email
     private final String email;
+
     @Length(min = 5)
     private final String password;
 
