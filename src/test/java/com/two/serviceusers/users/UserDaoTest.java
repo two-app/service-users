@@ -48,7 +48,7 @@ class UserDaoTest {
     }
 
     @Nested
-    class CreateUser {
+    class StoreUser {
 
         UserRegistration userRegistration = new UserRegistration("gerry@two.com", "password", "Gerry", 22);
 
