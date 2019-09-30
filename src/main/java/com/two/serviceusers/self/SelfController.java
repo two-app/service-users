@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 @RestController
@@ -19,7 +20,7 @@ public class SelfController {
     private final UserService userService;
 
     @PostMapping("/self")
-    Tokens registerUser(@RequestBody @NotNull UserRegistration registerUser) {
+    Tokens registerUser(@RequestBody @NotNull @Valid UserRegistration registerUser) {
         return this.userService.storeUser(registerUser);
     }
 
