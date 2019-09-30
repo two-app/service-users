@@ -6,7 +6,6 @@ import com.two.http_api.model.User;
 import org.jooq.DSLContext;
 import org.jooq.generated.tables.records.UserRecord;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 
 import static org.jooq.generated.Tables.USER;
@@ -47,15 +46,12 @@ public class UserDao {
 
     /**
      * @return JWTs from the Authentication Service if the storage was successful.
+     * TODO: Some error handling for WebClientResponseException
      */
     Tokens storeCredentials(int uid, String password) {
-        ResponseEntity<Tokens> response = this.authenticationServiceApi.storeCredentialsAndGenerateTokens(
+        return this.authenticationServiceApi.storeCredentialsAndGenerateTokens(
                 new User.Credentials(uid, password)
         );
-
-        // TODO some error handling
-
-        return response.getBody();
     }
 
 
