@@ -1,7 +1,7 @@
-package com.two.serviceusers.dao;
+package com.two.serviceusers.users;
 
+import com.two.http_api.api.AuthenticationServiceApi;
 import com.two.http_api.model.User;
-import com.two.serviceusers.exceptions.UserExistsException;
 import org.flywaydb.core.Flyway;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,19 +19,25 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.jooq.generated.Tables.USER;
+import static org.mockito.Mockito.mock;
 
 @ExtendWith(SpringExtension.class)
 @JooqTest
 @TestExecutionListeners({DependencyInjectionTestExecutionListener.class})
-class UsersDaoTest {
+class UserDaoTest {
 
     private final Flyway flyway;
+    private final DSLContext ctx;
+    private final AuthenticationServiceApi authenticationServiceApi;
     private final UserDao usersDao;
 
     @Autowired
-    public UsersDaoTest(Flyway flyway, DSLContext dslContext) {
+    public UserDaoTest(Flyway flyway, DSLContext dslContext) {
         this.flyway = flyway;
-        this.usersDao = new UserDao(dslContext);
+        this.ctx = dslContext;
+        this.authenticationServiceApi = mock(AuthenticationServiceApi.class);
+        this.usersDao = new UserDao(this.ctx, this.authenticationServiceApi);
     }
 
     @BeforeEach
@@ -42,35 +48,29 @@ class UsersDaoTest {
 
     @Nested
     class CreateUser {
+
+        UserRegistration userRegistration = new UserRegistration("gerry@two.com", "password", "Gerry", 22);
+
         @Test
         @DisplayName("it should store the user")
         void userStored() {
-            int uid = usersDao.createUser("gerry@two.com", "Gerry", 22);
+            int uid = usersDao.storeUser(userRegistration);
 
-            Optional<User> user = usersDao.getUser("gerry@two.com");
+            Optional<User> user = ctx.selectFrom(USER).where(USER.EMAIL.eq("gerry@two.com")).fetchOptional().map(
+                    u -> new User(u.getUid(), u.getPid(), u.getCid(), u.getEmail(), u.getAge(), u.getName())
+            );
 
-            assertThat(user).isPresent().contains(new User(uid, null, null,  "gerry@two.com", 22, "Gerry"));
+            assertThat(user).isPresent().contains(new User(uid, null, null, "gerry@two.com", 22, "Gerry"));
         }
 
         @Test
         @DisplayName("it should throw an exception if the user exists")
         void uniqueConstraintBrokenExcepton() {
-            usersDao.createUser("gerry@two.com", "Gerry", 22);
+            usersDao.storeUser(userRegistration);
 
-            assertThatThrownBy(() -> usersDao.createUser("gerry@two.com", "Gerry", 22))
+            assertThatThrownBy(() -> usersDao.storeUser(userRegistration))
                     .isInstanceOf(UserExistsException.class)
                     .hasMessageContaining("An account with the email 'gerry@two.com' already exists.");
-        }
-    }
-
-    @Nested
-    class GetUser {
-        @Test
-        @DisplayName("it should return an empty optional for a non existent user")
-        void notExists_EmptyOptional() {
-            Optional<User> user = usersDao.getUser("unknown@unknown.com");
-
-            assertThat(user).isEmpty();
         }
     }
 
