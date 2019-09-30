@@ -22,7 +22,7 @@ class UserServiceTest {
     @Test
     @DisplayName("it should store the user via the DAO")
     void storesUser() {
-        tb.build().createUser(userRegistration);
+        tb.build().storeUser(userRegistration);
 
         verify(tb.getDependency(UserDao.class)).storeUser(userRegistration);
     }
@@ -30,7 +30,7 @@ class UserServiceTest {
     @Test
     @DisplayName("it should store the user credentials via the DAO")
     void storesCredentials() {
-        tb.whenStoreUserReturn(99).build().createUser(userRegistration);
+        tb.whenStoreUserReturn(99).build().storeUser(userRegistration);
 
         verify(tb.getDependency(UserDao.class)).storeCredentials(99, userRegistration.getPassword());
     }
@@ -41,7 +41,7 @@ class UserServiceTest {
         Tokens tokens = new Tokens("refresh-token", "access-token");
         UserService userService = tb.whenStoreUserReturn(99).whenStoreCredentialsReturn(tokens).build();
 
-        Tokens generatedTokens = userService.createUser(userRegistration);
+        Tokens generatedTokens = userService.storeUser(userRegistration);
 
         assertThat(generatedTokens).isEqualTo(tokens);
     }

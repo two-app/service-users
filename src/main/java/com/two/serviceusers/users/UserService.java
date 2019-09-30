@@ -17,7 +17,7 @@ public class UserService {
     /**
      * @return a pair of JSON web tokens.
      */
-    public Tokens createUser(UserRegistration userRegistration) {
+    public Tokens storeUser(UserRegistration userRegistration) {
         int uid = this.userDao.storeUser(userRegistration);
         return this.userDao.storeCredentials(uid, userRegistration.getPassword());
     }
