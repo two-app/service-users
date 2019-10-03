@@ -6,6 +6,8 @@ import com.two.http_api.model.User;
 import lombok.AllArgsConstructor;
 import org.jooq.DSLContext;
 import org.jooq.generated.tables.records.UserRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Repository;
 
@@ -17,12 +19,14 @@ public class UserDao {
 
     private final DSLContext ctx;
     private final AuthenticationServiceApi authenticationServiceApi;
+    private static final Logger logger = LoggerFactory.getLogger(UserDao.class);
 
     /**
      * @return the created users ID.
      * @exception DuplicateKeyException if the email exists in the users table.
      */
     int storeUser(UserRegistration userRegistration) throws DuplicateKeyException {
+        logger.info("Storing user details in DB table 'USER'.");
         UserRecord userRecord = ctx.newRecord(USER);
 
         userRecord.setEmail(userRegistration.getEmail());
@@ -32,6 +36,7 @@ public class UserDao {
         userRecord.store();
         userRecord.refresh();
 
+        logger.info("Successfully stored user in DB with generated UID: {}.", userRecord.getUid());
         return userRecord.getUid();
     }
 
@@ -40,6 +45,7 @@ public class UserDao {
      * TODO: Some error handling for WebClient ResponseException
      */
     Tokens storeCredentials(int uid, String password) {
+        logger.info("Messaging the Authentication Service to store the users credentials.");
         return this.authenticationServiceApi.storeCredentialsAndGenerateTokens(
                 new User.Credentials(uid, password)
         );
