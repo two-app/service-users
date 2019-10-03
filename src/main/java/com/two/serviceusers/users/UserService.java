@@ -2,6 +2,8 @@ package com.two.serviceusers.users;
 
 import com.two.http_api.model.Tokens;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
@@ -11,15 +13,20 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserDao userDao;
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     /**
      * @return a pair of JSON web tokens.
      */
     public Tokens storeUser(UserRegistration userRegistration) {
         try {
+            logger.info("Storing user details.");
             int uid = this.userDao.storeUser(userRegistration);
+
+            logger.info("Storing user credentials.");
             return this.userDao.storeCredentials(uid, userRegistration.getPassword());
         } catch (DuplicateKeyException e) {
+            logger.warn("The user already exists.", e);
             throw new UserExistsException(userRegistration.getEmail());
         }
     }
