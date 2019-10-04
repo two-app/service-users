@@ -1,6 +1,5 @@
 package com.two.serviceusers.users;
 
-import com.two.http_api.api.AuthenticationServiceApi;
 import com.two.http_api.model.User;
 import org.flywaydb.core.Flyway;
 import org.jooq.DSLContext;
@@ -21,7 +20,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.jooq.generated.Tables.USER;
-import static org.mockito.Mockito.mock;
 
 @ExtendWith(SpringExtension.class)
 @JooqTest
@@ -30,15 +28,13 @@ class UserDaoTest {
 
     private final Flyway flyway;
     private final DSLContext ctx;
-    private final AuthenticationServiceApi authenticationServiceApi;
     private final UserDao usersDao;
 
     @Autowired
     public UserDaoTest(Flyway flyway, DSLContext ctx) {
         this.flyway = flyway;
         this.ctx = ctx;
-        this.authenticationServiceApi = mock(AuthenticationServiceApi.class);
-        this.usersDao = new UserDao(this.ctx, this.authenticationServiceApi);
+        this.usersDao = new UserDao(this.ctx);
     }
 
     @BeforeEach

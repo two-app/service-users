@@ -1,4 +1,4 @@
-package com.two.serviceusers.self;
+package com.two.serviceusers;
 
 import com.two.http_api.model.Tokens;
 import com.two.serviceusers.users.UserRegistration;

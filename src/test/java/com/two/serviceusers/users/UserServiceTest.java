@@ -1,6 +1,7 @@
 package com.two.serviceusers.users;
 
 import com.two.http_api.model.Tokens;
+import com.two.serviceusers.authentication.AuthenticationDao;
 import dev.testbed.TestBed;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,7 +35,7 @@ class UserServiceTest {
     void storesCredentials() {
         tb.whenStoreUserReturn(99).build().storeUser(userRegistration);
 
-        verify(tb.getDependency(UserDao.class)).storeCredentials(99, userRegistration.getPassword());
+        verify(tb.getDependency(AuthenticationDao.class)).storeCredentials(99, userRegistration.getPassword());
     }
 
     @Test
@@ -61,8 +62,8 @@ class UserServiceTest {
     class TestBuilder extends TestBed<UserService, TestBuilder> {
         TestBuilder() { super(UserService.class); }
 
-        TestBuilder whenStoreUserReturn(int userId) {
-            when(getDependency(UserDao.class).storeUser(any(UserRegistration.class))).thenReturn(userId);
+        TestBuilder whenStoreUserReturn(int uid) {
+            when(getDependency(UserDao.class).storeUser(any(UserRegistration.class))).thenReturn(uid);
             return this;
         }
 
@@ -73,7 +74,7 @@ class UserServiceTest {
         }
 
         TestBuilder whenStoreCredentialsReturn(Tokens tokens) {
-            when(getDependency(UserDao.class).storeCredentials(anyInt(), anyString())).thenReturn(tokens);
+            when(getDependency(AuthenticationDao.class).storeCredentials(anyInt(), anyString())).thenReturn(tokens);
             return this;
         }
     }
