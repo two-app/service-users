@@ -90,7 +90,7 @@ class UserDaoTest {
         void returnsCreatedUser() {
             int uid = userDao.storeUser(userRegistration);
 
-            Optional<User> userOptional = userDao.getUser(uid);
+            Optional<User> userOptional = userDao.getUser("gerry@two.com");
 
             assertThat(userOptional).isPresent().contains(
                     new User(uid, null, null, "gerry@two.com", 22, "Gerry")
@@ -100,7 +100,7 @@ class UserDaoTest {
         @Test
         @DisplayName("it should return an empty optional for an unknown user")
         void unknownUser() {
-            Optional<User> userOptional = userDao.getUser(99);
+            Optional<User> userOptional = userDao.getUser("unknown@two.com");
 
             assertThat(userOptional).isNotPresent();
         }

@@ -40,14 +40,14 @@ public class UserDao {
     }
 
     /**
-     * @param uid to look the user up by.
+     * @param email to look the user up by.
      * @return the user if they exist, an empty optional if not.
      */
-    Optional<User> getUser(int uid) {
-        logger.info("Retrieving user by UID {} from table 'USER'.", uid);
+    Optional<User> getUser(String email) {
+        logger.info("Retrieving user by email {} from table 'USER'.", email);
 
         return ctx.selectFrom(USER)
-                .where(USER.UID.eq(uid))
+                .where(USER.EMAIL.eq(email))
                 .fetchOptional()
                 .map(ur -> new User(ur.getUid(), ur.getPid(), ur.getCid(), ur.getEmail(), ur.getAge(), ur.getName()));
     }
