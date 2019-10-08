@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
 @RestController
 @Validated
@@ -23,7 +22,7 @@ public class SelfController {
     private static final Logger logger = LoggerFactory.getLogger(SelfController.class);
 
     @PostMapping("/self")
-    Tokens registerUser(@RequestBody @NotNull @Valid UserRegistration user) {
+    Tokens registerUser(@Valid @RequestBody UserRegistration user) {
         logger.info("Registering user {}, with email {}, and age {}.", user.getName(), user.getEmail(), user.getAge());
         Tokens tokens = this.userService.storeUser(user);
         logger.info("Responding with tokens: {}.", tokens);
