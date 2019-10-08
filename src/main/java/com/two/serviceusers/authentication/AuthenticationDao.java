@@ -19,11 +19,17 @@ public class AuthenticationDao {
      * @return JWTs from the Authentication Service if the storage was successful.
      * TODO: Some error handling for WebClient ResponseException
      */
-    public Tokens storeCredentials(int uid, String password) {
-        logger.info("Messaging the Authentication Service to store the users credentials.");
-        return this.authenticationServiceApi.storeCredentialsAndGenerateTokens(
-                new User.Credentials(uid, password)
-        );
+    public Tokens storeCredentials(User.Credentials cr) {
+        logger.info("Messaging the Authentication Service to store the users credentials, and generate tokens.");
+        return this.authenticationServiceApi.storeCredentialsAndGenerateTokens(cr);
     }
 
+    /**
+     * @return JWTs from the Authentication Service if the authentication was successful.
+     * TODO: Some error handling for WebClient ResponseException
+     */
+    public Tokens authenticateAndCreateTokens(User.Credentials cr) {
+        logger.info("Messaging the Authentication Service to authenticate UID {}, and generate tokens.", cr.getUid());
+        return this.authenticationServiceApi.authenticateCredentialsAndGenerateTokens(cr);
+    }
 }
