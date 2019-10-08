@@ -19,7 +19,7 @@ import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -80,7 +80,6 @@ class UserServiceTest {
     @Nested
     class LoginUser {
 
-        User.Credentials credentials = new User.Credentials(12, "rawPassword");
         User user = new User(12, 13, 14, "gerry@two.com", 22, "Gerry");
 
         @Test
@@ -88,9 +87,9 @@ class UserServiceTest {
         void retrievesUser() {
             UserService userService = tb.whenGetUserReturn(of(user)).build();
 
-            userService.loginUser(credentials);
+            userService.loginUser("gerry@two.com", "rawPassword");
 
-            verify(tb.getDependency(UserDao.class)).getUser(12);
+            verify(tb.getDependency(UserDao.class)).getUser("gerry@two.com");
         }
 
         @Test
@@ -98,7 +97,7 @@ class UserServiceTest {
         void throwsBadRequestResponseStatusException() {
             UserService userService = tb.whenGetUserReturn(empty()).build();
 
-            assertThatThrownBy(() -> userService.loginUser(credentials))
+            assertThatThrownBy(() -> userService.loginUser("gerry@two.com", "rawPassword"))
                     .isInstanceOf(ResponseStatusException.class)
                     .hasMessageContaining("This user does not exist.")
                     .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST);
@@ -109,9 +108,11 @@ class UserServiceTest {
         void authenticates() {
             UserService userService = tb.whenGetUserReturn(of(user)).build();
 
-            userService.loginUser(credentials);
+            userService.loginUser("gerry@two.com", "rawPassword");
 
-            verify(tb.getDependency(AuthenticationDao.class)).authenticateAndCreateTokens(credentials);
+            verify(tb.getDependency(AuthenticationDao.class)).authenticateAndCreateTokens(
+                    new User.Credentials(12, "rawPassword")
+            );
         }
 
         @Test
@@ -122,7 +123,7 @@ class UserServiceTest {
                     .whenAuthenticateAndCreateTokensReturn(tokens)
                     .build();
 
-            Tokens createdTokens = userService.loginUser(credentials);
+            Tokens createdTokens = userService.loginUser("gerry@two.com", "rawPassword");
 
             assertThat(createdTokens).isEqualTo(tokens);
         }
@@ -151,7 +152,7 @@ class UserServiceTest {
         }
 
         TestBuilder whenGetUserReturn(Optional<User> userOptional) {
-            when(getDependency(UserDao.class).getUser(anyInt())).thenReturn(userOptional);
+            when(getDependency(UserDao.class).getUser(anyString())).thenReturn(userOptional);
             return this;
         }
 

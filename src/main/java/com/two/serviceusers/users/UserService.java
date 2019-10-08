@@ -10,6 +10,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
 import java.util.Optional;
 
 @Service
@@ -36,9 +37,9 @@ public class UserService {
         }
     }
 
-    public Tokens loginUser(User.Credentials credentials) throws ResponseStatusException {
+    public Tokens loginUser(String email, String rawPassword) throws ResponseStatusException {
         logger.info("Retrieving user details.");
-        Optional<User> optionalUser = this.userDao.getUser(credentials.getUid());
+        Optional<User> optionalUser = this.userDao.getUser(email);
 
         if (optionalUser.isEmpty()) {
             logger.info("The UID does not exist.");
@@ -50,7 +51,7 @@ public class UserService {
 
         logger.info("Verifying user credentials with email {}.", user.getEmail());
         return this.authenticationDao.authenticateAndCreateTokens(
-                new User.Credentials(user.getUid(), credentials.getRawPassword())
+                new User.Credentials(user.getUid(), rawPassword)
         );
     }
 
