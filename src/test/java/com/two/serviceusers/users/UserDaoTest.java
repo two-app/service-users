@@ -19,7 +19,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.jooq.generated.Tables.USER;
 
 @ExtendWith(SpringExtension.class)
 @JooqTest
@@ -27,7 +26,6 @@ import static org.jooq.generated.Tables.USER;
 class UserDaoTest {
 
     private final Flyway flyway;
-    private final DSLContext ctx;
     private final UserDao userDao;
     private UserRegistration userRegistration = new UserRegistration(
             "gerry@two.com", "password", "Gerry", 22
@@ -42,24 +40,19 @@ class UserDaoTest {
     @Autowired
     public UserDaoTest(Flyway flyway, DSLContext ctx) {
         this.flyway = flyway;
-        this.ctx = ctx;
-        this.userDao = new UserDao(this.ctx);
+        this.userDao = new UserDao(ctx, new UserMapper());
     }
 
     @Nested
     class StoreUser {
-
-
         @Test
         @DisplayName("it should store the user")
         void userStored() {
-            int uid = userDao.storeUser(userRegistration);
+            User storedUser = userDao.storeUser(userRegistration);
 
-            Optional<User> user = ctx.selectFrom(USER).where(USER.EMAIL.eq("gerry@two.com")).fetchOptional().map(
-                    u -> new User(u.getUid(), u.getPid(), u.getCid(), u.getEmail(), u.getAge(), u.getName())
-            );
+            Optional<User> retrievedUser = userDao.getUser(userRegistration.getEmail());
 
-            assertThat(user).isPresent().contains(new User(uid, null, null, "gerry@two.com", 22, "Gerry"));
+            assertThat(retrievedUser).isPresent().contains(storedUser);
         }
 
         @Test
@@ -75,9 +68,9 @@ class UserDaoTest {
         @Test
         @DisplayName("it should auto-increment the UIDs")
         void autoIncrementsUIDs() {
-            int firstUID = userDao.storeUser(userRegistration);
+            int firstUID = userDao.storeUser(userRegistration).getUid();
             userRegistration.setEmail("differentEmail@two.com");
-            int secondUID = userDao.storeUser(userRegistration);
+            int secondUID = userDao.storeUser(userRegistration).getUid();
 
             assertThat(secondUID).isEqualTo(firstUID + 1);
         }
@@ -88,7 +81,7 @@ class UserDaoTest {
         @Test
         @DisplayName("it should return the created user")
         void returnsCreatedUser() {
-            int uid = userDao.storeUser(userRegistration);
+            int uid = userDao.storeUser(userRegistration).getUid();
 
             Optional<User> userOptional = userDao.getUser("gerry@two.com");
 

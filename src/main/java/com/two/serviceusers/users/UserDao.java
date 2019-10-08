@@ -18,13 +18,14 @@ import static org.jooq.generated.Tables.USER;
 public class UserDao {
 
     private final DSLContext ctx;
+    private final UserMapper userMapper;
     private static final Logger logger = LoggerFactory.getLogger(UserDao.class);
 
     /**
      * @return the created users ID.
      * @exception DuplicateKeyException if the email exists in the users table.
      */
-    int storeUser(UserRegistration userRegistration) throws DuplicateKeyException {
+    User storeUser(UserRegistration userRegistration) throws DuplicateKeyException {
         logger.info("Storing user details in DB table 'USER'.");
         UserRecord userRecord = ctx.newRecord(USER);
 
@@ -36,7 +37,7 @@ public class UserDao {
         userRecord.refresh();
 
         logger.info("Successfully stored user in DB with generated UID: {}.", userRecord.getUid());
-        return userRecord.getUid();
+        return userMapper.map(userRecord);
     }
 
     /**
@@ -48,7 +49,6 @@ public class UserDao {
 
         return ctx.selectFrom(USER)
                 .where(USER.EMAIL.eq(email))
-                .fetchOptional()
-                .map(ur -> new User(ur.getUid(), ur.getPid(), ur.getCid(), ur.getEmail(), ur.getAge(), ur.getName()));
+                .fetchOptional(userMapper);
     }
 }

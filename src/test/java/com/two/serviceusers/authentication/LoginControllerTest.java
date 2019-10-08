@@ -36,7 +36,7 @@ class LoginControllerTest {
     @MockBean
     UserService userService;
 
-    ObjectMapper om = new ObjectMapper();
+    private ObjectMapper om = new ObjectMapper();
 
     @Nested
     class PostLogin {

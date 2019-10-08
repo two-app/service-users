@@ -26,11 +26,13 @@ public class UserService {
      */
     public Tokens storeUser(UserRegistration userRegistration) {
         try {
-            logger.info("Storing user details.");
-            int uid = this.userDao.storeUser(userRegistration);
+            logger.info("Storing user registration details.");
+            User user = this.userDao.storeUser(userRegistration);
 
             logger.info("Storing user credentials.");
-            return this.authenticationDao.storeCredentials(new User.Credentials(uid, userRegistration.getPassword()));
+            return this.authenticationDao.storeCredentials(
+                    new User.WithCredentials(user, userRegistration.getPassword())
+            );
         } catch (DuplicateKeyException e) {
             logger.warn("The user already exists.", e);
             throw new UserExistsException(userRegistration.getEmail());
@@ -51,7 +53,7 @@ public class UserService {
 
         logger.info("Verifying user credentials with email {}.", user.getEmail());
         return this.authenticationDao.authenticateAndCreateTokens(
-                new User.Credentials(user.getUid(), rawPassword)
+                new User.WithCredentials(user, rawPassword)
         );
     }
 

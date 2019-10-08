@@ -16,9 +16,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.containsString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -36,7 +38,7 @@ public class SelfControllerTest {
     @MockBean
     UserService userService;
 
-    ObjectMapper om = new ObjectMapper();
+    private ObjectMapper om = new ObjectMapper();
 
     @Nested
     class PostSelf {
@@ -50,13 +52,10 @@ public class SelfControllerTest {
             Tokens tokens = new Tokens("refresh-token", "access-token");
             when(userService.storeUser(userRegistration)).thenReturn(tokens);
 
-            mockMvc.perform(post("/self")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .content(om.writeValueAsBytes(userRegistration))
-            )
-                    .andExpect(status().isOk())
+            postSelf(userRegistration).andExpect(status().isOk())
                     .andExpect(content().bytes(om.writeValueAsBytes(tokens)));
+
+            verify(userService).storeUser(userRegistration);
         }
 
         @Test
@@ -64,11 +63,7 @@ public class SelfControllerTest {
         void emptyBody() throws Exception {
             ErrorResponse expectedErrorResponse = new ErrorResponse(singletonList("Badly formed HTTP request."));
 
-            mockMvc.perform(post("/self")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .accept(MediaType.APPLICATION_JSON)
-            )
-                    .andExpect(status().isBadRequest())
+            postSelf(null).andExpect(status().isBadRequest())
                     .andExpect(content().bytes(om.writeValueAsBytes(expectedErrorResponse)));
         }
 
@@ -79,16 +74,19 @@ public class SelfControllerTest {
                     "bademail", "pass", "n", 1
             );
 
-            mockMvc.perform(post("/self")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .content(om.writeValueAsBytes(invalidUserRegistration))
-            )
-                    .andExpect(status().isBadRequest())
+            postSelf(invalidUserRegistration).andExpect(status().isBadRequest())
                     .andExpect(content().string(containsString("Email must be valid.")))
                     .andExpect(content().string(containsString("Password must be at least 5 characters long.")))
                     .andExpect(content().string(containsString("Name must be at least 5 characters long.")))
                     .andExpect(content().string(containsString("You must be at least 13.")));
+        }
+
+        private ResultActions postSelf(UserRegistration userRegistration) throws Exception {
+            return mockMvc.perform(post("/self")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .content(om.writeValueAsBytes(userRegistration))
+            );
         }
     }
 
