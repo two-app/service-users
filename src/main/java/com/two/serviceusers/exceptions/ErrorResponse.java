@@ -1,10 +1,14 @@
 package com.two.serviceusers.exceptions;
 
-import lombok.Value;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@Value
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
 public class ErrorResponse {
-    private final List<String> errors;
+    private List<String> errors;
 }
