@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class ValidationExceptionMapper {
 
     private static final Logger logger = LoggerFactory.getLogger(ValidationExceptionMapper.class);
-    
+
     /**
      * @param e Constraint Violation Exception, typically raised by JavaX Validation Constraints.
      * @return a list of user-friendly errors, extracted from each constraint violation.
