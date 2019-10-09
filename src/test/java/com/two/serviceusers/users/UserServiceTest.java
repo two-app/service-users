@@ -70,13 +70,14 @@ class UserServiceTest {
         }
 
         @Test
-        @DisplayName("it should throw a UserExistsException if the DAO raises a DuplicateKeyException")
-        void throwsUserExistsException() {
+        @DisplayName("it should throw a Bad Requset Exception if the DAO raises a DuplicateKeyException")
+        void throwsBadRequestException() {
             UserService userService = tb.whenStoreUserThrowDuplicateKeyException().build();
 
             assertThatThrownBy(() -> userService.storeUser(userRegistration))
-                    .isInstanceOf(UserExistsException.class)
-                    .hasMessageContaining("An account with the email 'gerry@two.com' already exists.");
+                    .isInstanceOf(ResponseStatusException.class)
+                    .hasMessageContaining("This user already exists.")
+                    .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST);
         }
     }
 

@@ -23,6 +23,7 @@ public class UserService {
 
     /**
      * @return a pair of JSON web tokens.
+     * @throws ResponseStatusException Bad Request if the user already exists.
      */
     public Tokens storeUser(UserRegistration userRegistration) {
         try {
@@ -35,7 +36,7 @@ public class UserService {
             );
         } catch (DuplicateKeyException e) {
             logger.warn("The user already exists.", e);
-            throw new UserExistsException(userRegistration.getEmail());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This user already exists.");
         }
     }
 
