@@ -2,7 +2,6 @@ package com.two.serviceusers.authentication;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.two.http_api.model.Tokens;
-import com.two.serviceusers.exceptions.ErrorResponse;
 import com.two.serviceusers.users.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -17,13 +16,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import static java.util.Collections.singletonList;
-import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = LoginController.class)
@@ -60,10 +56,8 @@ class LoginControllerTest {
         @Test
         @DisplayName("it should return bad request if the request body is empty")
         void emptyBody() throws Exception {
-            ErrorResponse expectedErrorResponse = new ErrorResponse(singletonList("Badly formed HTTP request."));
-
             postLogin(null).andExpect(status().isBadRequest())
-                    .andExpect(content().bytes(om.writeValueAsBytes(expectedErrorResponse)));
+                    .andExpect(jsonPath("$.message").value("Badly formed HTTP request."));
         }
 
         @Test
@@ -71,12 +65,11 @@ class LoginControllerTest {
         void invalidUser() throws Exception {
             LoginController.UserLogin userLogin = new LoginController.UserLogin(
                     "bademail",
-                    "p"
+                    "password"
             );
 
             postLogin(userLogin).andExpect(status().isBadRequest())
-                    .andExpect(content().string(containsString("Valid email must be provided.")))
-                    .andExpect(content().string(containsString("Valid password must be provided.")));
+                    .andExpect(jsonPath("$.message").value("Valid email must be provided."));
         }
 
         private ResultActions postLogin(LoginController.UserLogin userLogin) throws Exception {

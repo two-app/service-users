@@ -2,7 +2,6 @@ package com.two.serviceusers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.two.http_api.model.Tokens;
-import com.two.serviceusers.exceptions.ErrorResponse;
 import com.two.serviceusers.users.UserRegistration;
 import com.two.serviceusers.users.UserService;
 import org.junit.jupiter.api.DisplayName;
@@ -18,13 +17,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import static java.util.Collections.singletonList;
-import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @ExtendWith(SpringExtension.class)
@@ -61,24 +57,19 @@ public class SelfControllerTest {
         @Test
         @DisplayName("it should return bad request if the body is empty")
         void emptyBody() throws Exception {
-            ErrorResponse expectedErrorResponse = new ErrorResponse(singletonList("Badly formed HTTP request."));
-
             postSelf(null).andExpect(status().isBadRequest())
-                    .andExpect(content().bytes(om.writeValueAsBytes(expectedErrorResponse)));
+                    .andExpect(jsonPath("$.message").value("Badly formed HTTP request."));
         }
 
         @Test
         @DisplayName("it should return a bad request with validation errors if the user is provided but invalid")
         void invalidUser() throws Exception {
             UserRegistration invalidUserRegistration = new UserRegistration(
-                    "bademail", "pass", "n", 1
+                    "bademail", "password", "Gerry", 22
             );
 
             postSelf(invalidUserRegistration).andExpect(status().isBadRequest())
-                    .andExpect(content().string(containsString("Email must be valid.")))
-                    .andExpect(content().string(containsString("Password must be at least 5 characters long.")))
-                    .andExpect(content().string(containsString("Name must be at least 5 characters long.")))
-                    .andExpect(content().string(containsString("You must be at least 13.")));
+                    .andExpect(jsonPath("$.message").value("Email must be valid."));
         }
 
         private ResultActions postSelf(UserRegistration userRegistration) throws Exception {
