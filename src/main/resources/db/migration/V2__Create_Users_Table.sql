@@ -1,11 +1,12 @@
 CREATE TABLE `users`.`user`
 (
-  `uid`   INT          NOT NULL AUTO_INCREMENT,
-  `pid`   INT          NULL,
-  `cid`   INT          NULL,
-  `email` VARCHAR(150) NOT NULL, # TODO Lookup length of email
-  `name`  VARCHAR(45)  NOT NULL,
-  `age`   INT          NOT NULL,
+  `uid`        INT          NOT NULL AUTO_INCREMENT,
+  `pid`        INT          NULL,
+  `cid`        INT          NULL,
+  `email`      VARCHAR(150) NOT NULL, # TODO Lookup length of email
+  `name`       VARCHAR(45)  NOT NULL,
+  `age`        INT          NOT NULL,
+  `created_at` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`uid`),
   UNIQUE INDEX `uid_UNIQUE` (`uid` ASC) VISIBLE,
   UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE,

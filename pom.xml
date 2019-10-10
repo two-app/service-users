@@ -97,6 +97,7 @@
             <groupId>com.two</groupId>
             <artifactId>testbed</artifactId>
             <version>${testbed.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>

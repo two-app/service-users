@@ -1,6 +1,5 @@
 package com.two.serviceusers.users;
 
-import com.two.http_api.api.AuthenticationServiceApi;
 import com.two.http_api.model.User;
 import org.flywaydb.core.Flyway;
 import org.jooq.DSLContext;
@@ -20,8 +19,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.jooq.generated.Tables.USER;
-import static org.mockito.Mockito.mock;
 
 @ExtendWith(SpringExtension.class)
 @JooqTest
@@ -29,17 +26,10 @@ import static org.mockito.Mockito.mock;
 class UserDaoTest {
 
     private final Flyway flyway;
-    private final DSLContext ctx;
-    private final AuthenticationServiceApi authenticationServiceApi;
-    private final UserDao usersDao;
-
-    @Autowired
-    public UserDaoTest(Flyway flyway, DSLContext ctx) {
-        this.flyway = flyway;
-        this.ctx = ctx;
-        this.authenticationServiceApi = mock(AuthenticationServiceApi.class);
-        this.usersDao = new UserDao(this.ctx, this.authenticationServiceApi);
-    }
+    private final UserDao userDao;
+    private UserRegistration userRegistration = new UserRegistration(
+            "gerry@two.com", "password", "Gerry", 22
+    );
 
     @BeforeEach
     void setUp() {
@@ -47,31 +37,65 @@ class UserDaoTest {
         flyway.migrate();
     }
 
+    @Autowired
+    public UserDaoTest(Flyway flyway, DSLContext ctx) {
+        this.flyway = flyway;
+        this.userDao = new UserDao(ctx, new UserMapper());
+    }
+
     @Nested
     class StoreUser {
-
-        UserRegistration userRegistration = new UserRegistration("gerry@two.com", "password", "Gerry", 22);
-
         @Test
         @DisplayName("it should store the user")
         void userStored() {
-            int uid = usersDao.storeUser(userRegistration);
+            User storedUser = userDao.storeUser(userRegistration);
 
-            Optional<User> user = ctx.selectFrom(USER).where(USER.EMAIL.eq("gerry@two.com")).fetchOptional().map(
-                    u -> new User(u.getUid(), u.getPid(), u.getCid(), u.getEmail(), u.getAge(), u.getName())
-            );
+            Optional<User> retrievedUser = userDao.getUser(userRegistration.getEmail());
 
-            assertThat(user).isPresent().contains(new User(uid, null, null, "gerry@two.com", 22, "Gerry"));
+            assertThat(retrievedUser).isPresent().contains(storedUser);
         }
 
         @Test
         @DisplayName("it should throw an exception if the user exists")
         void uniqueConstraintBrokenException() {
-            usersDao.storeUser(userRegistration);
+            userDao.storeUser(userRegistration);
 
-            assertThatThrownBy(() -> usersDao.storeUser(userRegistration))
+            assertThatThrownBy(() -> userDao.storeUser(userRegistration))
                     .isInstanceOf(DuplicateKeyException.class)
                     .hasMessageContaining("Duplicate entry 'gerry@two.com'");
+        }
+
+        @Test
+        @DisplayName("it should auto-increment the UIDs")
+        void autoIncrementsUIDs() {
+            int firstUID = userDao.storeUser(userRegistration).getUid();
+            userRegistration.setEmail("differentEmail@two.com");
+            int secondUID = userDao.storeUser(userRegistration).getUid();
+
+            assertThat(secondUID).isEqualTo(firstUID + 1);
+        }
+    }
+
+    @Nested
+    class GetUser {
+        @Test
+        @DisplayName("it should return the created user")
+        void returnsCreatedUser() {
+            int uid = userDao.storeUser(userRegistration).getUid();
+
+            Optional<User> userOptional = userDao.getUser("gerry@two.com");
+
+            assertThat(userOptional).isPresent().contains(
+                    new User(uid, null, null, "gerry@two.com", 22, "Gerry")
+            );
+        }
+
+        @Test
+        @DisplayName("it should return an empty optional for an unknown user")
+        void unknownUser() {
+            Optional<User> userOptional = userDao.getUser("unknown@two.com");
+
+            assertThat(userOptional).isNotPresent();
         }
     }
 
