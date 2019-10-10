@@ -1,8 +1,6 @@
-package com.two.serviceusers;
+package com.two.serviceusers.users;
 
 import com.two.http_api.model.Tokens;
-import com.two.serviceusers.users.UserRegistration;
-import com.two.serviceusers.users.UserService;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

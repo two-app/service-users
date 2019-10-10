@@ -1,9 +1,7 @@
-package com.two.serviceusers;
+package com.two.serviceusers.users;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.two.http_api.model.Tokens;
-import com.two.serviceusers.users.UserRegistration;
-import com.two.serviceusers.users.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -26,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = SelfController.class)
 @AutoConfigureMockMvc
-public class SelfControllerTest {
+class SelfControllerTest {
 
     @Autowired
     MockMvc mockMvc;
