@@ -12,6 +12,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static java.util.Optional.empty;
@@ -26,6 +27,7 @@ import static org.mockito.Mockito.when;
 class UserServiceTest {
 
     private TestBuilder tb;
+    private LocalDate dob = LocalDate.parse("1997-08-21");
 
     @BeforeEach
     void setup() {
@@ -35,10 +37,10 @@ class UserServiceTest {
     @Nested
     class StoreUser {
         private UserRegistration userRegistration = new UserRegistration(
-                "gerry@two.com", "test-password", "Gerry", 22
+                "gerry@two.com", "test-password", "Gerry", dob
         );
 
-        private User user = new User(99, null, null, "gerry@two.com", 22, "Gerry");
+        private User user = new User(99, null, null, "gerry@two.com", dob, "Gerry");
 
         @Test
         @DisplayName("it should store the user via the DAO")
@@ -84,7 +86,7 @@ class UserServiceTest {
     @Nested
     class LoginUser {
 
-        User user = new User(12, 13, 14, "gerry@two.com", 22, "Gerry");
+        User user = new User(12, 13, 14, "gerry@two.com", dob, "Gerry");
 
         @Test
         @DisplayName("it should retrieve the user")

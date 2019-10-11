@@ -15,6 +15,7 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,8 +28,9 @@ class UserDaoTest {
 
     private final Flyway flyway;
     private final UserDao userDao;
+    private LocalDate dob = LocalDate.parse("1997-08-21");
     private UserRegistration userRegistration = new UserRegistration(
-            "gerry@two.com", "password", "Gerry", 22
+            "gerry@two.com", "password", "Gerry", dob
     );
 
     @BeforeEach
@@ -86,7 +88,7 @@ class UserDaoTest {
             Optional<User> userOptional = userDao.getUser("gerry@two.com");
 
             assertThat(userOptional).isPresent().contains(
-                    new User(uid, null, null, "gerry@two.com", 22, "Gerry")
+                    new User(uid, null, null, "gerry@two.com", dob, "Gerry")
             );
         }
 

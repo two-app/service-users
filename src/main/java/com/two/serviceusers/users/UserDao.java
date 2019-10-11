@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Date;
 import java.util.Optional;
 
 import static org.jooq.generated.Tables.USER;
@@ -23,7 +24,7 @@ public class UserDao {
 
     /**
      * @return the created users ID.
-     * @exception DuplicateKeyException if the email exists in the users table.
+     * @throws DuplicateKeyException if the email exists in the users table.
      */
     User storeUser(UserRegistration userRegistration) throws DuplicateKeyException {
         logger.info("Storing user details in DB table 'USER'.");
@@ -31,7 +32,7 @@ public class UserDao {
 
         userRecord.setEmail(userRegistration.getEmail());
         userRecord.setName(userRegistration.getName());
-        userRecord.setAge(userRegistration.getAge());
+        userRecord.setDob(Date.valueOf(userRegistration.getDob()));
 
         userRecord.store();
         userRecord.refresh();

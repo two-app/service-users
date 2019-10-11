@@ -5,7 +5,7 @@ CREATE TABLE `users`.`user`
   `cid`        INT          NULL,
   `email`      VARCHAR(150) NOT NULL, # TODO Lookup length of email
   `name`       VARCHAR(45)  NOT NULL,
-  `age`        INT          NOT NULL,
+  `dob`        DATE         NOT NULL,
   `created_at` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`uid`),
   UNIQUE INDEX `uid_UNIQUE` (`uid` ASC) VISIBLE,
