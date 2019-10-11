@@ -15,6 +15,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.time.LocalDate;
+
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -29,10 +31,13 @@ class SelfControllerTest {
     @Autowired
     MockMvc mockMvc;
 
+    @Autowired
+    ObjectMapper om;
+
     @MockBean
     UserService userService;
 
-    private ObjectMapper om = new ObjectMapper();
+    private LocalDate dob = LocalDate.parse("1997-08-21");
 
     @Nested
     class PostSelf {
@@ -40,7 +45,7 @@ class SelfControllerTest {
         @DisplayName("it should return 200 OK with tokens if the body is a valid user")
         void validUser() throws Exception {
             UserRegistration userRegistration = new UserRegistration(
-                    "gerry2@two.com", "rawPassword", "Gerry", 22
+                    "gerry2@two.com", "rawPassword", "Gerry", dob
             );
 
             Tokens tokens = new Tokens("refresh-token", "access-token");
@@ -63,7 +68,7 @@ class SelfControllerTest {
         @DisplayName("it should return a bad request with validation errors if the user is provided but invalid")
         void invalidUser() throws Exception {
             UserRegistration invalidUserRegistration = new UserRegistration(
-                    "bademail", "password", "Gerry", 22
+                    "bademail", "password", "Gerry", dob
             );
 
             postSelf(invalidUserRegistration).andExpect(status().isBadRequest())

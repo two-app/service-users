@@ -29,10 +29,11 @@ class LoginControllerTest {
     @Autowired
     MockMvc mockMvc;
 
+    @Autowired
+    ObjectMapper om;
+
     @MockBean
     UserService userService;
-
-    private ObjectMapper om = new ObjectMapper();
 
     @Nested
     class PostLogin {

@@ -21,7 +21,7 @@ public class SelfController {
 
     @PostMapping("/self")
     Tokens registerUser(@Valid @RequestBody UserRegistration user) {
-        logger.info("Registering user {}, with email {}, and age {}.", user.getName(), user.getEmail(), user.getAge());
+        logger.info("Registering user {}, with email {}, and DOB {}.", user.getName(), user.getEmail(), user.getDob());
         Tokens tokens = this.userService.storeUser(user);
         logger.info("Responding with tokens: {}.", tokens);
         return tokens;
