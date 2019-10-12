@@ -46,7 +46,6 @@ class ConnectControllerTest {
                 .andExpect(content().bytes(om.writeValueAsBytes(tokens)));
 
         verify(connectService).connectUsers(1, "partnerConnectCode");
-
     }
 
 
