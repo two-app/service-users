@@ -19,6 +19,7 @@
         <spring-cloud.version>Greenwich.SR2</spring-cloud.version>
 
         <jwt.version>3.8.1</jwt.version>
+        <hashids.version>1.0.3</hashids.version>
 
         <!-- Test -->
         <maven.surefire.version>3.0.0-M1</maven.surefire.version>
@@ -71,6 +72,11 @@
             <groupId>com.two</groupId>
             <artifactId>http_api</artifactId>
             <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hashids</groupId>
+            <artifactId>hashids</artifactId>
+            <version>${hashids.version}</version>
         </dependency>
 
         <!-- Database -->
