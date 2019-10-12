@@ -53,7 +53,6 @@ class CoupleDaoTest {
         @DisplayName("it should correctly store the UID and PID, generating a CID")
         void generatesCID() {
             int uid = 3, pid = 4;
-
             int cid = coupleDao.storeCouple(uid, pid);
 
             assertThat(cid).isEqualTo(1);
@@ -82,6 +81,7 @@ class CoupleDaoTest {
             Instant oneSecondBefore = Instant.now().minusSeconds(1);
 
             int cid = coupleDao.storeCouple(1, 2);
+
             Instant connectedAt = ctx.select(COUPLE.CONNECTED_AT).from(COUPLE).where(COUPLE.CID.eq(cid))
                     .fetchOne().value1().toInstant();
 
