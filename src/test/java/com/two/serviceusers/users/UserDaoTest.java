@@ -15,11 +15,13 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.jooq.generated.Tables.USER;
 
 @ExtendWith(SpringExtension.class)
 @JooqTest
@@ -27,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class UserDaoTest {
 
     private final Flyway flyway;
+    private final DSLContext ctx;
     private final UserDao userDao;
     private LocalDate dob = LocalDate.parse("1997-08-21");
     private UserRegistration userRegistration = new UserRegistration(
@@ -42,6 +45,7 @@ class UserDaoTest {
     @Autowired
     public UserDaoTest(Flyway flyway, DSLContext ctx) {
         this.flyway = flyway;
+        this.ctx = ctx;
         this.userDao = new UserDao(ctx, new UserMapper());
     }
 
@@ -75,6 +79,20 @@ class UserDaoTest {
             int secondUID = userDao.storeUser(userRegistration).getUid();
 
             assertThat(secondUID).isEqualTo(firstUID + 1);
+        }
+
+        @Test
+        @DisplayName("it should store the creation time")
+        void storesCreationTime() {
+            Instant oneSecondBefore = Instant.now().minusSeconds(1);
+
+            int uid = userDao.storeUser(userRegistration).getUid();
+            Instant createdAt = ctx.select(USER.CREATED_AT).from(USER).where(USER.UID.eq(uid))
+                    .fetchOne().value1().toInstant();
+
+            Instant oneSecondAfter = Instant.now().plusSeconds(1);
+
+            assertThat(createdAt).isBetween(oneSecondBefore, oneSecondAfter);
         }
     }
 
