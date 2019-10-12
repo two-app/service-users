@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class LoginControllerTest {
 
     @Autowired
-    MockMvc mockMvc;
+    MockMvc mvc;
 
     @Autowired
     ObjectMapper om;
@@ -74,11 +74,10 @@ class LoginControllerTest {
         }
 
         private ResultActions postLogin(LoginController.UserLogin userLogin) throws Exception {
-            return mockMvc.perform(
-                    post("/login")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .accept(MediaType.APPLICATION_JSON)
-                            .content(om.writeValueAsBytes(userLogin))
+            return mvc.perform(post("/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .content(om.writeValueAsBytes(userLogin))
             );
         }
     }
