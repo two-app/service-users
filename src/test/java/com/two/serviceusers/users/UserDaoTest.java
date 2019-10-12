@@ -80,24 +80,50 @@ class UserDaoTest {
 
     @Nested
     class GetUser {
-        @Test
-        @DisplayName("it should return the created user")
-        void returnsCreatedUser() {
-            int uid = userDao.storeUser(userRegistration).getUid();
+        @Nested
+        class ByEmail {
+            @Test
+            @DisplayName("it should return the created user")
+            void returnsCreatedUser() {
+                int uid = userDao.storeUser(userRegistration).getUid();
 
-            Optional<User> userOptional = userDao.getUser("gerry@two.com");
+                Optional<User> userOptional = userDao.getUser("gerry@two.com");
 
-            assertThat(userOptional).isPresent().contains(
-                    new User(uid, null, null, "gerry@two.com", dob, "Gerry")
-            );
+                assertThat(userOptional).isPresent().contains(
+                        new User(uid, null, null, "gerry@two.com", dob, "Gerry")
+                );
+            }
+
+            @Test
+            @DisplayName("it should return an empty optional for an unknown user")
+            void unknownUser() {
+                Optional<User> userOptional = userDao.getUser("unknown@two.com");
+
+                assertThat(userOptional).isNotPresent();
+            }
         }
 
-        @Test
-        @DisplayName("it should return an empty optional for an unknown user")
-        void unknownUser() {
-            Optional<User> userOptional = userDao.getUser("unknown@two.com");
+        @Nested
+        class ByUid {
+            @Test
+            @DisplayName("it should return the created user")
+            void returnsCreatedUser() {
+                int uid = userDao.storeUser(userRegistration).getUid();
 
-            assertThat(userOptional).isNotPresent();
+                Optional<User> userOptional = userDao.getUser(uid);
+
+                assertThat(userOptional).isPresent().contains(
+                        new User(uid, null, null, "gerry@two.com", dob, "Gerry")
+                );
+            }
+
+            @Test
+            @DisplayName("it should return an empty optional for an unknown user")
+            void unknownUser() {
+                Optional<User> userOptional = userDao.getUser(22);
+
+                assertThat(userOptional).isNotPresent();
+            }
         }
     }
 

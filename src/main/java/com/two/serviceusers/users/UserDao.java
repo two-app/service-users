@@ -45,11 +45,22 @@ public class UserDao {
      * @param email to look the user up by.
      * @return the user if they exist, an empty optional if not.
      */
-    Optional<User> getUser(String email) {
+    public Optional<User> getUser(String email) {
         logger.info("Retrieving user by email {} from table 'USER'.", email);
 
         return ctx.selectFrom(USER)
                 .where(USER.EMAIL.eq(email))
+                .fetchOptional(userMapper);
+    }
+
+    /**
+     * @param uid to look the user up by.
+     * @return the user if they exist, an empty optional if not.
+     */
+    public Optional<User> getUser(int uid) {
+        logger.info("Retrieving user by UID {} from table 'USER'.", uid);
+        return ctx.selectFrom(USER)
+                .where(USER.UID.eq(uid))
                 .fetchOptional(userMapper);
     }
 }
