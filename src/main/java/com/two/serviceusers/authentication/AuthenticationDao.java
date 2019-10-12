@@ -53,7 +53,7 @@ public class AuthenticationDao {
         try {
             return this.authenticationServiceApi.getToken(user);
         } catch (WebClientResponseException e) {
-            logger.warn("Failed to generate tokens in authentication service.");
+            logger.error("Failed to generate tokens in authentication service.");
             throw new PropagateHttpResponseException(e);
         }
     }
