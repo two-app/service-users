@@ -1,5 +1,6 @@
 package com.two.serviceusers.connect;
 
+import com.two.http_api.api.PublicApiContracts;
 import com.two.http_api.authentication.RequestContext;
 import com.two.http_api.model.Tokens;
 import lombok.AllArgsConstructor;
@@ -15,13 +16,13 @@ import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @AllArgsConstructor
-public class ConnectController {
+public class ConnectController implements PublicApiContracts.PostConnect {
 
     private static final Logger logger = LoggerFactory.getLogger(ConnectController.class);
     private final ConnectService connectService;
 
-    @PostMapping("/connect/{connectCode}")
-    public Tokens connect(HttpServletRequest request, @PathVariable("connectCode") String partnerConnectCode) {
+    @PostMapping(postConnectPath)
+    public Tokens connect(HttpServletRequest request, @PathVariable(connectCodePathVariable) String partnerConnectCode) {
         RequestContext ctx = RequestContext.from(request);
         if (!ctx.isConnectToken()) {
             logger.warn("Connected user is attempting another connect.");
@@ -34,5 +35,6 @@ public class ConnectController {
         logger.info("Returning newly generated tokens: {}.", tokens);
         return tokens;
     }
+
 
 }
