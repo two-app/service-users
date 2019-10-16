@@ -1,6 +1,7 @@
 package com.two.serviceusers.users;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.two.http_api.model.PublicApiModel.UserRegistration;
 import com.two.http_api.model.Tokens;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

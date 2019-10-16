@@ -1,5 +1,6 @@
 package com.two.serviceusers.users;
 
+import com.two.http_api.model.PublicApiModel.UserRegistration;
 import com.two.http_api.model.User;
 import org.flywaydb.core.Flyway;
 import org.jooq.DSLContext;
@@ -32,14 +33,15 @@ class UserDaoTest {
     private final DSLContext ctx;
     private final UserDao userDao;
     private LocalDate dob = LocalDate.parse("1997-08-21");
-    private UserRegistration userRegistration = new UserRegistration(
-            "gerry@two.com", "password", "Gerry", dob
-    );
+    private UserRegistration userRegistration;
 
     @BeforeEach
     void setUp() {
         flyway.clean();
         flyway.migrate();
+        userRegistration = new UserRegistration(
+                "gerry@two.com", "password", "Gerry", dob
+        );
     }
 
     @Autowired

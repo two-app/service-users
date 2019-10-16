@@ -19,6 +19,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import static com.two.http_api.model.PublicApiModel.UserRegistration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jooq.generated.Tables.COUPLE;
 import static org.jooq.generated.Tables.USER;

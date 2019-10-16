@@ -1,5 +1,6 @@
 package com.two.serviceusers.users;
 
+import com.two.http_api.model.PublicApiModel.UserRegistration;
 import com.two.http_api.model.User;
 import lombok.AllArgsConstructor;
 import org.jooq.DSLContext;
@@ -45,7 +46,7 @@ public class UserDao {
      * @param email to look the user up by.
      * @return the user if they exist, an empty optional if not.
      */
-    public Optional<User> getUser(String email) {
+    Optional<User> getUser(String email) {
         logger.info("Retrieving user by email {} from table 'USER'.", email);
 
         return ctx.selectFrom(USER)
