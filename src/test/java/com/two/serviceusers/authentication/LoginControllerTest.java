@@ -16,6 +16,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import static com.two.http_api.model.PublicApiModel.UserLogin;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -27,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class LoginControllerTest {
 
     @Autowired
-    MockMvc mockMvc;
+    MockMvc mvc;
 
     @Autowired
     ObjectMapper om;
@@ -40,7 +41,7 @@ class LoginControllerTest {
         @Test
         @DisplayName("it should return tokens for a valid login")
         void validLogin() throws Exception {
-            LoginController.UserLogin userLogin = new LoginController.UserLogin(
+            UserLogin userLogin = new UserLogin(
                     "gerry@two.com",
                     "rawPassword"
             );
@@ -64,7 +65,7 @@ class LoginControllerTest {
         @Test
         @DisplayName("it should return a bad request with validation errors if the user is provided but invalid")
         void invalidUser() throws Exception {
-            LoginController.UserLogin userLogin = new LoginController.UserLogin(
+            UserLogin userLogin = new UserLogin(
                     "bademail",
                     "password"
             );
@@ -73,12 +74,11 @@ class LoginControllerTest {
                     .andExpect(jsonPath("$.message").value("Valid email must be provided."));
         }
 
-        private ResultActions postLogin(LoginController.UserLogin userLogin) throws Exception {
-            return mockMvc.perform(
-                    post("/login")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .accept(MediaType.APPLICATION_JSON)
-                            .content(om.writeValueAsBytes(userLogin))
+        private ResultActions postLogin(UserLogin userLogin) throws Exception {
+            return mvc.perform(post("/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .content(om.writeValueAsBytes(userLogin))
             );
         }
     }

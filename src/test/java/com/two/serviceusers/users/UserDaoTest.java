@@ -1,5 +1,6 @@
 package com.two.serviceusers.users;
 
+import com.two.http_api.model.PublicApiModel.UserRegistration;
 import com.two.http_api.model.User;
 import org.flywaydb.core.Flyway;
 import org.jooq.DSLContext;
@@ -15,11 +16,13 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.jooq.generated.Tables.USER;
 
 @ExtendWith(SpringExtension.class)
 @JooqTest
@@ -27,21 +30,24 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class UserDaoTest {
 
     private final Flyway flyway;
+    private final DSLContext ctx;
     private final UserDao userDao;
     private LocalDate dob = LocalDate.parse("1997-08-21");
-    private UserRegistration userRegistration = new UserRegistration(
-            "gerry@two.com", "password", "Gerry", dob
-    );
+    private UserRegistration userRegistration;
 
     @BeforeEach
     void setUp() {
         flyway.clean();
         flyway.migrate();
+        userRegistration = new UserRegistration(
+                "gerry@two.com", "password", "Gerry", dob
+        );
     }
 
     @Autowired
     public UserDaoTest(Flyway flyway, DSLContext ctx) {
         this.flyway = flyway;
+        this.ctx = ctx;
         this.userDao = new UserDao(ctx, new UserMapper());
     }
 
@@ -76,28 +82,68 @@ class UserDaoTest {
 
             assertThat(secondUID).isEqualTo(firstUID + 1);
         }
+
+        @Test
+        @DisplayName("it should store the creation time")
+        void storesCreationTime() {
+            Instant oneSecondBefore = Instant.now().minusSeconds(1);
+
+            int uid = userDao.storeUser(userRegistration).getUid();
+            Instant createdAt = ctx.select(USER.CREATED_AT).from(USER).where(USER.UID.eq(uid))
+                    .fetchOne().value1().toInstant();
+
+            Instant oneSecondAfter = Instant.now().plusSeconds(1);
+
+            assertThat(createdAt).isBetween(oneSecondBefore, oneSecondAfter);
+        }
     }
 
     @Nested
     class GetUser {
-        @Test
-        @DisplayName("it should return the created user")
-        void returnsCreatedUser() {
-            int uid = userDao.storeUser(userRegistration).getUid();
+        @Nested
+        class ByEmail {
+            @Test
+            @DisplayName("it should return the created user")
+            void returnsCreatedUser() {
+                int uid = userDao.storeUser(userRegistration).getUid();
 
-            Optional<User> userOptional = userDao.getUser("gerry@two.com");
+                Optional<User> userOptional = userDao.getUser("gerry@two.com");
 
-            assertThat(userOptional).isPresent().contains(
-                    new User(uid, null, null, "gerry@two.com", dob, "Gerry")
-            );
+                assertThat(userOptional).isPresent().contains(
+                        new User(uid, null, null, "gerry@two.com", dob, "Gerry")
+                );
+            }
+
+            @Test
+            @DisplayName("it should return an empty optional for an unknown user")
+            void unknownUser() {
+                Optional<User> userOptional = userDao.getUser("unknown@two.com");
+
+                assertThat(userOptional).isNotPresent();
+            }
         }
 
-        @Test
-        @DisplayName("it should return an empty optional for an unknown user")
-        void unknownUser() {
-            Optional<User> userOptional = userDao.getUser("unknown@two.com");
+        @Nested
+        class ByUid {
+            @Test
+            @DisplayName("it should return the created user")
+            void returnsCreatedUser() {
+                int uid = userDao.storeUser(userRegistration).getUid();
 
-            assertThat(userOptional).isNotPresent();
+                Optional<User> userOptional = userDao.getUser(uid);
+
+                assertThat(userOptional).isPresent().contains(
+                        new User(uid, null, null, "gerry@two.com", dob, "Gerry")
+                );
+            }
+
+            @Test
+            @DisplayName("it should return an empty optional for an unknown user")
+            void unknownUser() {
+                Optional<User> userOptional = userDao.getUser(22);
+
+                assertThat(userOptional).isNotPresent();
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 package com.two.serviceusers.users;
 
+import com.two.http_api.model.PublicApiModel.UserRegistration;
 import com.two.http_api.model.Tokens;
 import com.two.http_api.model.User;
 import com.two.serviceusers.authentication.AuthenticationDao;
@@ -25,7 +26,7 @@ public class UserService {
      * @return a pair of JSON web tokens.
      * @throws ResponseStatusException Bad Request if the user already exists.
      */
-    public Tokens storeUser(UserRegistration userRegistration) {
+    Tokens storeUser(UserRegistration userRegistration) {
         try {
             logger.info("Storing user registration details.");
             User user = this.userDao.storeUser(userRegistration);

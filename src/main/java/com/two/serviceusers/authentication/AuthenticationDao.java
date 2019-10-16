@@ -25,7 +25,7 @@ public class AuthenticationDao {
         try {
             return this.authenticationServiceApi.storeCredentialsAndGenerateTokens(cr);
         } catch (WebClientResponseException e) {
-            logger.error("Failed to store user credentials or generate tokens.in authentication service.");
+            logger.error("Failed to store user credentials or generate tokens in authentication service.");
             logger.error("Potential data-mismatch between users service and authentication service.");
             logger.error("Response for UID {}.", cr.getUser().getUid(), e);
             throw new PropagateHttpResponseException(e);
@@ -41,6 +41,19 @@ public class AuthenticationDao {
             return this.authenticationServiceApi.authenticateCredentialsAndGenerateTokens(cr);
         } catch (WebClientResponseException e) {
             logger.warn("Failed to authenticate user {}.", cr.getUser().getUid());
+            throw new PropagateHttpResponseException(e);
+        }
+    }
+
+    /**
+     * @return JWTs from the Authentication Service.
+     */
+    public Tokens getTokens(User user) {
+        logger.info("Messaging the Authentication Service to generate tokens for UID {}.", user.getUid());
+        try {
+            return this.authenticationServiceApi.getToken(user);
+        } catch (WebClientResponseException e) {
+            logger.error("Failed to generate tokens in authentication service.");
             throw new PropagateHttpResponseException(e);
         }
     }

@@ -12,18 +12,18 @@
     <artifactId>service-users</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>service-users</name>
-    <description>Users microservice.</description>
+    <description>Users micro-service.</description>
 
     <properties>
         <java.version>11</java.version>
         <spring-cloud.version>Greenwich.SR2</spring-cloud.version>
 
         <jwt.version>3.8.1</jwt.version>
+        <hashids.version>1.0.3</hashids.version>
 
         <!-- Test -->
-        <maven.surefire.version>3.0.0-M1</maven.surefire.version>
         <assertj.version>3.11.1</assertj.version>
-        <junit.jupiter.version>5.3.2</junit.jupiter.version>
+        <junit-jupiter.version>5.5.2</junit-jupiter.version>
         <testbed.version>1.0-SNAPSHOT</testbed.version>
 
         <!-- Database -->
@@ -72,6 +72,11 @@
             <artifactId>http_api</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>org.hashids</groupId>
+            <artifactId>hashids</artifactId>
+            <version>${hashids.version}</version>
+        </dependency>
 
         <!-- Database -->
         <dependency>
@@ -108,8 +113,6 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit.jupiter.version}</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -191,15 +194,6 @@
                             <directory>src/main/java</directory>
                         </target>
                     </generator>
-                </configuration>
-            </plugin>
-
-            <!-- Required for Junit5 Test running -->
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven.surefire.version}</version>
-                <configuration>
-                    <reportsDirectory>test-results/</reportsDirectory>
                 </configuration>
             </plugin>
         </plugins>

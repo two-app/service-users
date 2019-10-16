@@ -1,5 +1,6 @@
 package com.two.serviceusers.users;
 
+import com.two.http_api.api.PublicApiContracts;
 import com.two.http_api.model.Tokens;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -11,16 +12,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
+import static com.two.http_api.model.PublicApiModel.UserRegistration;
+
 @RestController
 @Validated
 @AllArgsConstructor
-public class SelfController {
+public class SelfController implements PublicApiContracts.PostSelf {
 
     private final UserService userService;
     private static final Logger logger = LoggerFactory.getLogger(SelfController.class);
 
     @PostMapping("/self")
-    Tokens registerUser(@Valid @RequestBody UserRegistration user) {
+    @Override
+    public Tokens registerUser(@Valid @RequestBody UserRegistration user) {
         logger.info("Registering user {}, with email {}, and DOB {}.", user.getName(), user.getEmail(), user.getDob());
         Tokens tokens = this.userService.storeUser(user);
         logger.info("Responding with tokens: {}.", tokens);
