@@ -12,7 +12,7 @@
     <artifactId>service-users</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>service-users</name>
-    <description>Users microservice.</description>
+    <description>Users micro-service.</description>
 
     <properties>
         <java.version>11</java.version>
@@ -22,9 +22,8 @@
         <hashids.version>1.0.3</hashids.version>
 
         <!-- Test -->
-        <maven.surefire.version>3.0.0-M1</maven.surefire.version>
         <assertj.version>3.11.1</assertj.version>
-        <junit.jupiter.version>5.3.2</junit.jupiter.version>
+        <junit-jupiter.version>5.5.2</junit-jupiter.version>
         <testbed.version>1.0-SNAPSHOT</testbed.version>
 
         <!-- Database -->
@@ -114,8 +113,6 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit.jupiter.version}</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -197,15 +194,6 @@
                             <directory>src/main/java</directory>
                         </target>
                     </generator>
-                </configuration>
-            </plugin>
-
-            <!-- Required for Junit5 Test running -->
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven.surefire.version}</version>
-                <configuration>
-                    <reportsDirectory>test-results/</reportsDirectory>
                 </configuration>
             </plugin>
         </plugins>
