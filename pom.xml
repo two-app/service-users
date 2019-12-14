@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.1.8.RELEASE</version>
+        <version>2.2.2.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.two</groupId>
@@ -29,7 +29,7 @@
         <!-- Database -->
         <flywaycore.version>5.2.4</flywaycore.version>
         <flywayplugin.version>6.0.1</flywayplugin.version>
-        <jooq.codegen.plugin.version>3.11.7</jooq.codegen.plugin.version>
+        <jooq.codegen.plugin.version>3.12.3</jooq.codegen.plugin.version>
         <mysql.connector.version>8.0.17</mysql.connector.version>
 
         <database.root.url>jdbc:mysql://localhost:3306</database.root.url>
@@ -189,6 +189,12 @@
                             <name>org.jooq.meta.mysql.MySQLDatabase</name>
                             <includes>.*</includes>
                             <inputSchema>${database.schema}</inputSchema>
+                            <forcedTypes>
+                                <forcedType>
+                                    <name>BOOLEAN</name>
+                                    <includeTypes>(?i:TINYINT\(1\))</includeTypes>
+                                </forcedType>
+                            </forcedTypes>
                         </database>
                         <target>
                             <directory>src/main/java</directory>

@@ -32,7 +32,6 @@ class UserDaoTest {
     private final Flyway flyway;
     private final DSLContext ctx;
     private final UserDao userDao;
-    private LocalDate dob = LocalDate.parse("1997-08-21");
     private UserRegistration userRegistration;
 
     @BeforeEach
@@ -40,7 +39,7 @@ class UserDaoTest {
         flyway.clean();
         flyway.migrate();
         userRegistration = new UserRegistration(
-                "gerry@two.com", "password", "Gerry", dob
+                "gerry@two.com", "password", "Gerry", "Fletcher", true, true
         );
     }
 
@@ -110,7 +109,7 @@ class UserDaoTest {
                 Optional<User> userOptional = userDao.getUser("gerry@two.com");
 
                 assertThat(userOptional).isPresent().contains(
-                        new User(uid, null, null, "gerry@two.com", dob, "Gerry")
+                        new User(uid, null, null, "gerry@two.com", "Gerry", "Fletcher")
                 );
             }
 
@@ -133,7 +132,7 @@ class UserDaoTest {
                 Optional<User> userOptional = userDao.getUser(uid);
 
                 assertThat(userOptional).isPresent().contains(
-                        new User(uid, null, null, "gerry@two.com", dob, "Gerry")
+                        new User(uid, null, null, "gerry@two.com", "Gerry", "Fletcher")
                 );
             }
 

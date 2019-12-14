@@ -14,8 +14,8 @@ public class UserMapper implements RecordMapper<UserRecord, User> {
                 userRecord.getPid(),
                 userRecord.getCid(),
                 userRecord.getEmail(),
-                userRecord.getDob().toLocalDate(),
-                userRecord.getName()
+                userRecord.getFirstName(),
+                userRecord.getLastName()
         );
     }
 }

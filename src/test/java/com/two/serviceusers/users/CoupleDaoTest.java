@@ -94,7 +94,7 @@ class CoupleDaoTest {
 
     private int createUser(int uidx) {
         return userDao.storeUser(
-                new UserRegistration("gerry" + uidx + "@two.com", "testPass", "Gerry", LocalDate.parse("1997-08-21"))
+                new UserRegistration("gerry" + uidx + "@two.com", "testPass", "Gerry", "Fletcher", true, true)
         ).getUid();
     }
 

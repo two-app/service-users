@@ -46,7 +46,7 @@ class SelfControllerTest {
         @DisplayName("it should return 200 OK with tokens if the body is a valid user")
         void validUser() throws Exception {
             UserRegistration userRegistration = new UserRegistration(
-                    "gerry2@two.com", "rawPassword", "Gerry", dob
+                    "gerry2@two.com", "rawPassword", "Gerry", "Fletcher", true, true
             );
 
             Tokens tokens = new Tokens("refresh-token", "access-token");
@@ -69,12 +69,14 @@ class SelfControllerTest {
         @DisplayName("it should return a bad request with validation errors if the user is provided but invalid")
         void invalidUser() throws Exception {
             UserRegistration invalidUserRegistration = new UserRegistration(
-                    "bademail", "password", "Gerry", dob
+                    "bademail", "password", "Gerry", "Fletcher", true, true
             );
 
             postSelf(invalidUserRegistration).andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.message").value("Email must be valid."));
         }
+
+        // TODO write a test for false in accepted terms and age
 
         private ResultActions postSelf(UserRegistration userRegistration) throws Exception {
             return mockMvc.perform(post("/self")
