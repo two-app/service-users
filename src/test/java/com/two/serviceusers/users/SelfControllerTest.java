@@ -23,7 +23,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = SelfController.class)
 @AutoConfigureMockMvc
@@ -76,7 +75,27 @@ class SelfControllerTest {
                     .andExpect(jsonPath("$.message").value("Email must be valid."));
         }
 
-        // TODO write a test for false in accepted terms and age
+        @Test
+        @DisplayName("it should return a bad request if terms and conditions not agreed")
+        void termsNotAgreed() throws Exception {
+            UserRegistration invalidUserRegistration = new UserRegistration(
+                    "admin@two.com", "Passw0rd", "Gerry", "Fletcher", false, true
+            );
+
+            postSelf(invalidUserRegistration).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Terms & Conditions must be accepted."));
+        }
+
+        @Test
+        @DisplayName("it should return a bad request if age not agreed")
+        void ageNotCorrect() throws Exception {
+            UserRegistration invalidUserRegistration = new UserRegistration(
+                    "admin@two.com", "Passw0rd", "Gerry", "Fletcher", true, false
+            );
+
+            postSelf(invalidUserRegistration).andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.message").value("You must be over 16 to join."));
+        }
 
         private ResultActions postSelf(UserRegistration userRegistration) throws Exception {
             return mockMvc.perform(post("/self")
