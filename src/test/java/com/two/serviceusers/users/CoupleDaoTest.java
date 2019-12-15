@@ -16,7 +16,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.Optional;
 
 import static com.two.http_api.model.PublicApiModel.UserRegistration;

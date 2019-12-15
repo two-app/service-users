@@ -16,8 +16,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import java.time.LocalDate;
-
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -81,7 +79,7 @@ class SelfControllerTest {
             );
 
             postSelf(invalidUserRegistration).andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Terms & Conditions must be accepted."));
+                    .andExpect(jsonPath("$.message").value("Terms & Conditions must be accepted."));
         }
 
         @Test

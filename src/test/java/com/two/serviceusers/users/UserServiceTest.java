@@ -134,7 +134,6 @@ class UserServiceTest {
         }
     }
 
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     class TestBuilder extends TestBed<UserService, TestBuilder> {
         TestBuilder() {
             super(UserService.class);
