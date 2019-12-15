@@ -37,8 +37,6 @@ class SelfControllerTest {
     @MockBean
     UserService userService;
 
-    private LocalDate dob = LocalDate.parse("1997-08-21");
-
     @Nested
     class PostSelf {
         @Test
