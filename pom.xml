@@ -16,7 +16,7 @@
 
     <properties>
         <java.version>11</java.version>
-        <spring-cloud.version>Greenwich.SR2</spring-cloud.version>
+        <spring-cloud.version>Hoxton.RELEASE</spring-cloud.version>
 
         <jwt.version>3.8.1</jwt.version>
         <hashids.version>1.0.3</hashids.version>
