@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDate;
 import java.util.Optional;
 
 import static java.util.Optional.empty;
@@ -25,9 +24,9 @@ import static org.mockito.Mockito.*;
 class ConnectServiceTest {
 
     private TestBuilder tb;
-    private User user = new User(1, null, null, "gerry@two.com", LocalDate.parse("1997-08-21"), "Gerry");
-    private User partner = new User(2, null, null, "test@two.com", LocalDate.parse("1997-05-19"), "Test");
-    private User connectedUser = new User(1, 2, 3, "gerry@two.com", LocalDate.parse("1997-08-21"), "Gerry");
+    private User user = new User(1, null, null, "gerry@two.com", "Gerry", "Fletcher");
+    private User partner = new User(2, null, null, "test@two.com", "Partner", "Last Name");
+    private User connectedUser = new User(1, 2, 3, "gerry@two.com", "Gerry", "Fletcher");
     private Tokens tokens = new Tokens("refresh-token", "access-token");
 
     @BeforeEach

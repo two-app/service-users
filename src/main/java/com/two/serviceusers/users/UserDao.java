@@ -32,8 +32,10 @@ public class UserDao {
         UserRecord userRecord = ctx.newRecord(USER);
 
         userRecord.setEmail(userRegistration.getEmail());
-        userRecord.setName(userRegistration.getName());
-        userRecord.setDob(Date.valueOf(userRegistration.getDob()));
+        userRecord.setFirstName(userRegistration.getFirstName());
+        userRecord.setLastName(userRegistration.getLastName());
+        userRecord.setAcceptedTerms(userRegistration.isAcceptedTerms());
+        userRecord.setOfAge(userRegistration.isOfAge());
 
         userRecord.store();
         userRecord.refresh();

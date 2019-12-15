@@ -16,7 +16,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.Optional;
 
 import static com.two.http_api.model.PublicApiModel.UserRegistration;
@@ -94,7 +93,7 @@ class CoupleDaoTest {
 
     private int createUser(int uidx) {
         return userDao.storeUser(
-                new UserRegistration("gerry" + uidx + "@two.com", "testPass", "Gerry", LocalDate.parse("1997-08-21"))
+                new UserRegistration("gerry" + uidx + "@two.com", "testPass", "Gerry", "Fletcher", true, true)
         ).getUid();
     }
 

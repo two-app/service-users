@@ -16,13 +16,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import java.time.LocalDate;
-
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = SelfController.class)
@@ -38,15 +35,13 @@ class SelfControllerTest {
     @MockBean
     UserService userService;
 
-    private LocalDate dob = LocalDate.parse("1997-08-21");
-
     @Nested
     class PostSelf {
         @Test
         @DisplayName("it should return 200 OK with tokens if the body is a valid user")
         void validUser() throws Exception {
             UserRegistration userRegistration = new UserRegistration(
-                    "gerry2@two.com", "rawPassword", "Gerry", dob
+                    "gerry2@two.com", "rawPassword", "Gerry", "Fletcher", true, true
             );
 
             Tokens tokens = new Tokens("refresh-token", "access-token");
@@ -69,11 +64,33 @@ class SelfControllerTest {
         @DisplayName("it should return a bad request with validation errors if the user is provided but invalid")
         void invalidUser() throws Exception {
             UserRegistration invalidUserRegistration = new UserRegistration(
-                    "bademail", "password", "Gerry", dob
+                    "bademail", "password", "Gerry", "Fletcher", true, true
             );
 
             postSelf(invalidUserRegistration).andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.message").value("Email must be valid."));
+        }
+
+        @Test
+        @DisplayName("it should return a bad request if terms and conditions not agreed")
+        void termsNotAgreed() throws Exception {
+            UserRegistration invalidUserRegistration = new UserRegistration(
+                    "admin@two.com", "Passw0rd", "Gerry", "Fletcher", false, true
+            );
+
+            postSelf(invalidUserRegistration).andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.message").value("Terms & Conditions must be accepted."));
+        }
+
+        @Test
+        @DisplayName("it should return a bad request if age not agreed")
+        void ageNotCorrect() throws Exception {
+            UserRegistration invalidUserRegistration = new UserRegistration(
+                    "admin@two.com", "Passw0rd", "Gerry", "Fletcher", true, false
+            );
+
+            postSelf(invalidUserRegistration).andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.message").value("You must be over 16 to join."));
         }
 
         private ResultActions postSelf(UserRegistration userRegistration) throws Exception {

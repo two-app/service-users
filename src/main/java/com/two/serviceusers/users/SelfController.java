@@ -25,7 +25,7 @@ public class SelfController implements PublicApiContracts.PostSelf {
     @PostMapping("/self")
     @Override
     public Tokens registerUser(@Valid @RequestBody UserRegistration user) {
-        logger.info("Registering user {}, with email {}, and DOB {}.", user.getName(), user.getEmail(), user.getDob());
+        logger.info("Registering user {} {}, with email {}.", user.getFirstName(), user.getLastName(), user.getEmail());
         Tokens tokens = this.userService.storeUser(user);
         logger.info("Responding with tokens: {}.", tokens);
         return tokens;
