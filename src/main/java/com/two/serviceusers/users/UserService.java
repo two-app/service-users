@@ -25,7 +25,7 @@ public class UserService {
      * @return a pair of JSON web tokens.
      * @throws ResponseStatusException Bad Request if the user already exists.
      */
-    Tokens storeUser(UserRegistration userRegistration) {
+    Tokens storeUser(UserRegistration userRegistration) throws ResponseStatusException {
         try {
             logger.info("Storing user registration details.");
             User user = this.userDao.storeUser(userRegistration);
@@ -40,7 +40,7 @@ public class UserService {
         }
     }
 
-    public Tokens loginUser(String email, String rawPassword) throws ResponseStatusException {
+    public Tokens loginUser(String email, String rawPassword) {
         logger.info("Retrieving user details.");
         User self = this.getUser(email, User.class);
 
