@@ -2,6 +2,7 @@ package com.two.serviceusers.users;
 
 import com.two.http_api.model.Tokens;
 import com.two.http_api.model.User;
+import com.two.http_api.model.UserWithCredentials;
 import com.two.serviceusers.authentication.AuthenticationDao;
 import dev.testbed.TestBed;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,8 +20,7 @@ import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -36,15 +36,15 @@ class UserServiceTest {
     @Nested
     class StoreUser {
         private UserRegistration userRegistration = new UserRegistration(
-                "gerry@two.com", "test-password", "Gerry", "Fletcher", true, true
+                "two@two.com", "test-password", "Two", "TwoL", true, true
         );
 
-        private User user = new User(99, null, null, "gerry@two.com", "Gerry", "Gerry");
+        private User user = User.builder().uid(99).pid(null).cid(null).firstName("Two").lastName("TwoL").build();
 
         @Test
         @DisplayName("it should store the user via the DAO")
         void storesUser() {
-            tb.build().storeUser(userRegistration);
+            tb.whenStoreUserReturn(user).build().storeUser(userRegistration);
 
             verify(tb.getDependency(UserDao.class)).storeUser(userRegistration);
         }
@@ -54,7 +54,9 @@ class UserServiceTest {
         void storesCredentials() {
             tb.whenStoreUserReturn(user).build().storeUser(userRegistration);
 
-            User.WithCredentials userWithCredentials = new User.WithCredentials(user, userRegistration.getPassword());
+            UserWithCredentials userWithCredentials = UserWithCredentials.fromUser(
+                    user, userRegistration.getEmail(), userRegistration.getPassword()
+            );
 
             verify(tb.getDependency(AuthenticationDao.class)).storeCredentials(userWithCredentials);
         }
@@ -84,8 +86,7 @@ class UserServiceTest {
 
     @Nested
     class LoginUser {
-
-        User user = new User(12, 13, 14, "gerry@two.com", "Gerry", "Fletcher");
+        User user = User.builder().uid(12).pid(13).cid(14).firstName("Two").lastName("TwoL").build();
 
         @Test
         @DisplayName("it should retrieve the user")
@@ -94,7 +95,7 @@ class UserServiceTest {
 
             userService.loginUser("gerry@two.com", "rawPassword");
 
-            verify(tb.getDependency(UserDao.class)).getUser("gerry@two.com");
+            verify(tb.getDependency(UserDao.class)).getUser("gerry@two.com", User.class);
         }
 
         @Test
@@ -105,7 +106,7 @@ class UserServiceTest {
             assertThatThrownBy(() -> userService.loginUser("gerry@two.com", "rawPassword"))
                     .isInstanceOf(ResponseStatusException.class)
                     .hasMessageContaining("This user does not exist.")
-                    .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST);
+                    .hasFieldOrPropertyWithValue("status", HttpStatus.NOT_FOUND);
         }
 
         @Test
@@ -113,10 +114,10 @@ class UserServiceTest {
         void authenticates() {
             UserService userService = tb.whenGetUserReturn(of(user)).build();
 
-            userService.loginUser("gerry@two.com", "rawPassword");
+            userService.loginUser("two@two.com", "rawPassword");
 
             verify(tb.getDependency(AuthenticationDao.class)).authenticateAndCreateTokens(
-                    new User.WithCredentials(user, "rawPassword")
+                    UserWithCredentials.fromUser(user, "two@two.com", "rawPassword")
             );
         }
 
@@ -134,7 +135,32 @@ class UserServiceTest {
         }
     }
 
-    class TestBuilder extends TestBed<UserService, TestBuilder> {
+    @Nested
+    class GetUser {
+        User user = User.builder().uid(12).pid(13).cid(14).firstName("Two").lastName("TwoL").build();
+
+        @Test
+        @DisplayName("it should retrieve the user from the DAO")
+        void retrievesUser() {
+            UserService userService = tb.whenGetUserReturn(of(user)).build();
+
+            User retrievedUser = userService.getUser(12, User.class);
+
+            verify(tb.getDependency(UserDao.class)).getUser(12, User.class);
+            assertThat(retrievedUser).isEqualTo(user);
+        }
+
+        @Test
+        @DisplayName("it should throw UserNotFoundException if the user does not exist.")
+        void userNotFound() {
+            UserService userService = tb.whenGetUserReturn(empty()).build();
+
+            assertThatThrownBy(() -> userService.getUser(12, User.class))
+                    .isInstanceOf(UserNotExistsException.class);
+        }
+    }
+
+    static class TestBuilder extends TestBed<UserService, TestBuilder> {
         TestBuilder() {
             super(UserService.class);
         }
@@ -151,17 +177,18 @@ class UserServiceTest {
         }
 
         TestBuilder whenStoreCredentialsReturn(Tokens tokens) {
-            when(getDependency(AuthenticationDao.class).storeCredentials(any(User.WithCredentials.class))).thenReturn(tokens);
+            when(getDependency(AuthenticationDao.class).storeCredentials(any(UserWithCredentials.class))).thenReturn(tokens);
             return this;
         }
 
         TestBuilder whenGetUserReturn(Optional<User> userOptional) {
-            when(getDependency(UserDao.class).getUser(anyString())).thenReturn(userOptional);
+            when(getDependency(UserDao.class).getUser(anyString(), any())).thenReturn(userOptional);
+            when(getDependency(UserDao.class).getUser(anyInt(), eq(User.class))).thenReturn(userOptional);
             return this;
         }
 
         TestBuilder whenAuthenticateAndCreateTokensReturn(Tokens tokens) {
-            when(getDependency(AuthenticationDao.class).authenticateAndCreateTokens(any(User.WithCredentials.class)))
+            when(getDependency(AuthenticationDao.class).authenticateAndCreateTokens(any(UserWithCredentials.class)))
                     .thenReturn(tokens);
             return this;
         }

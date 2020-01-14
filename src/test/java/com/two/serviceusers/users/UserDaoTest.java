@@ -1,6 +1,8 @@
 package com.two.serviceusers.users;
 
+import com.two.http_api.model.Partner;
 import com.two.http_api.model.PublicApiModel.UserRegistration;
+import com.two.http_api.model.Self;
 import com.two.http_api.model.User;
 import org.flywaydb.core.Flyway;
 import org.jooq.DSLContext;
@@ -17,7 +19,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,7 +48,7 @@ class UserDaoTest {
     public UserDaoTest(Flyway flyway, DSLContext ctx) {
         this.flyway = flyway;
         this.ctx = ctx;
-        this.userDao = new UserDao(ctx, new UserMapper());
+        this.userDao = new UserDao(ctx);
     }
 
     @Nested
@@ -57,7 +58,7 @@ class UserDaoTest {
         void userStored() {
             User storedUser = userDao.storeUser(userRegistration);
 
-            Optional<User> retrievedUser = userDao.getUser(userRegistration.getEmail());
+            Optional<User> retrievedUser = userDao.getUser(userRegistration.getEmail(), User.class);
 
             assertThat(retrievedUser).isPresent().contains(storedUser);
         }
@@ -106,17 +107,51 @@ class UserDaoTest {
             void returnsCreatedUser() {
                 int uid = userDao.storeUser(userRegistration).getUid();
 
-                Optional<User> userOptional = userDao.getUser("gerry@two.com");
+                Optional<User> userOptional = userDao.getUser(userRegistration.getEmail(), User.class);
 
                 assertThat(userOptional).isPresent().contains(
-                        new User(uid, null, null, "gerry@two.com", "Gerry", "Fletcher")
+                        User.builder().uid(uid).pid(null).cid(null)
+                                .firstName(userRegistration.getFirstName())
+                                .lastName(userRegistration.getLastName())
+                                .build()
+                );
+            }
+
+            @Test
+            @DisplayName("it should return the created user mapped as Partner")
+            void mapsToPartner() {
+                int uid = userDao.storeUser(userRegistration).getUid();
+
+                Optional<Partner> userOptional = userDao.getUser(userRegistration.getEmail(), Partner.class);
+
+                assertThat(userOptional).isPresent().contains(
+                        Partner.builder().uid(uid).pid(null).cid(null)
+                                .firstName(userRegistration.getFirstName())
+                                .lastName(userRegistration.getLastName())
+                                .build()
+                );
+            }
+
+            @Test
+            @DisplayName("it should return the created user mapped as Self")
+            void mapsToSelf() {
+                int uid = userDao.storeUser(userRegistration).getUid();
+
+                Optional<Self> userOptional = userDao.getUser(userRegistration.getEmail(), Self.class);
+
+                assertThat(userOptional).isPresent().contains(
+                        Self.builder().uid(uid).pid(null).cid(null)
+                                .firstName(userRegistration.getFirstName())
+                                .lastName(userRegistration.getLastName())
+                                .email(userRegistration.getEmail())
+                                .build()
                 );
             }
 
             @Test
             @DisplayName("it should return an empty optional for an unknown user")
             void unknownUser() {
-                Optional<User> userOptional = userDao.getUser("unknown@two.com");
+                Optional<User> userOptional = userDao.getUser(userRegistration.getEmail(), User.class);
 
                 assertThat(userOptional).isNotPresent();
             }
@@ -129,17 +164,51 @@ class UserDaoTest {
             void returnsCreatedUser() {
                 int uid = userDao.storeUser(userRegistration).getUid();
 
-                Optional<User> userOptional = userDao.getUser(uid);
+                Optional<User> userOptional = userDao.getUser(uid, User.class);
 
                 assertThat(userOptional).isPresent().contains(
-                        new User(uid, null, null, "gerry@two.com", "Gerry", "Fletcher")
+                        User.builder().uid(uid).pid(null).cid(null)
+                                .firstName(userRegistration.getFirstName())
+                                .lastName(userRegistration.getLastName())
+                                .build()
+                );
+            }
+
+            @Test
+            @DisplayName("it should return the created user mapped as Partner")
+            void mapsToPartner() {
+                int uid = userDao.storeUser(userRegistration).getUid();
+
+                Optional<Partner> partnerOptional = userDao.getUser(uid, Partner.class);
+
+                assertThat(partnerOptional).isPresent().contains(
+                        Partner.builder().uid(uid).pid(null).cid(null)
+                                .firstName(userRegistration.getFirstName())
+                                .lastName(userRegistration.getLastName())
+                                .build()
+                );
+            }
+
+            @Test
+            @DisplayName("it should return the created user mapped as Self")
+            void mapsToSelf() {
+                int uid = userDao.storeUser(userRegistration).getUid();
+
+                Optional<Self> selfOptional = userDao.getUser(uid, Self.class);
+
+                assertThat(selfOptional).isPresent().contains(
+                        Self.builder().uid(uid).pid(null).cid(null)
+                                .firstName(userRegistration.getFirstName())
+                                .lastName(userRegistration.getLastName())
+                                .email(userRegistration.getEmail())
+                                .build()
                 );
             }
 
             @Test
             @DisplayName("it should return an empty optional for an unknown user")
             void unknownUser() {
-                Optional<User> userOptional = userDao.getUser(22);
+                Optional<User> userOptional = userDao.getUser(22, User.class);
 
                 assertThat(userOptional).isNotPresent();
             }

@@ -17,7 +17,6 @@ import static org.jooq.generated.Tables.USER;
 public class CoupleDao {
 
     private final DSLContext ctx;
-    private final UserMapper userMapper;
     private static final Logger logger = LoggerFactory.getLogger(CoupleDao.class);
 
     /**
@@ -55,7 +54,7 @@ public class CoupleDao {
         userRecord.refresh();
 
         logger.info("Successfully updated the user record.");
-        return userMapper.map(userRecord);
+        return UserRecordMapper.map(userRecord, User.class);
     }
 
 }
