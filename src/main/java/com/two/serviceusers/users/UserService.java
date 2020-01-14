@@ -30,8 +30,6 @@ public class UserService {
             logger.info("Storing user registration details.");
             User user = this.userDao.storeUser(userRegistration);
 
-            System.out.println(user);
-
             logger.info("Storing user credentials.");
             return this.authenticationDao.storeCredentials(
                     UserWithCredentials.fromUser(user, userRegistration.getEmail(), userRegistration.getPassword())
