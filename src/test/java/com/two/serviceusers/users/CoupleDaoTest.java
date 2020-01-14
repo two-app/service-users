@@ -37,8 +37,8 @@ class CoupleDaoTest {
     CoupleDaoTest(Flyway flyway, DSLContext ctx) {
         this.flyway = flyway;
         this.ctx = ctx;
-        this.coupleDao = new CoupleDao(ctx, new UserMapper());
-        this.userDao = new UserDao(ctx, new UserMapper());
+        this.coupleDao = new CoupleDao(ctx);
+        this.userDao = new UserDao(ctx);
     }
 
     @BeforeEach

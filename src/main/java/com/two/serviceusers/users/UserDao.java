@@ -3,14 +3,15 @@ package com.two.serviceusers.users;
 import com.two.http_api.model.PublicApiModel.UserRegistration;
 import com.two.http_api.model.User;
 import lombok.AllArgsConstructor;
+import lombok.val;
 import org.jooq.DSLContext;
+import org.jooq.RecordMapper;
 import org.jooq.generated.tables.records.UserRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Date;
 import java.util.Optional;
 
 import static org.jooq.generated.Tables.USER;
@@ -20,7 +21,6 @@ import static org.jooq.generated.Tables.USER;
 public class UserDao {
 
     private final DSLContext ctx;
-    private final UserMapper userMapper;
     private static final Logger logger = LoggerFactory.getLogger(UserDao.class);
 
     /**
@@ -41,29 +41,18 @@ public class UserDao {
         userRecord.refresh();
 
         logger.info("Successfully stored user in DB with generated UID: {}.", userRecord.getUid());
-        return userMapper.map(userRecord);
+        return UserRecordMapper.map(userRecord, User.class);
     }
 
-    /**
-     * @param email to look the user up by.
-     * @return the user if they exist, an empty optional if not.
-     */
-    Optional<User> getUser(String email) {
-        logger.info("Retrieving user by email {} from table 'USER'.", email);
-
-        return ctx.selectFrom(USER)
-                .where(USER.EMAIL.eq(email))
-                .fetchOptional(userMapper);
+    public <T extends User> Optional<T> getUser(String email, Class<T> userType) {
+        logger.info("Retrieving user from table 'USER' with email {} and mapping into {}.", email, userType);
+        val mapper = UserRecordMapper.resolve(userType);
+        return ctx.selectFrom(USER).where(USER.EMAIL.eq(email)).fetchOptional(mapper);
     }
 
-    /**
-     * @param uid to look the user up by.
-     * @return the user if they exist, an empty optional if not.
-     */
-    public Optional<User> getUser(int uid) {
-        logger.info("Retrieving user by UID {} from table 'USER'.", uid);
-        return ctx.selectFrom(USER)
-                .where(USER.UID.eq(uid))
-                .fetchOptional(userMapper);
+    public <T extends User> Optional<T> getUser(int uid, Class<T> userType) {
+        logger.info("Retrieving user from table 'USER' with uid {} and mapping into {}.", uid, userType);
+        val mapper = UserRecordMapper.resolve(userType);
+        return ctx.selectFrom(USER).where(USER.UID.eq(uid)).fetchOptional(mapper);
     }
 }

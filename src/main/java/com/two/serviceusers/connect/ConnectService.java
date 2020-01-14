@@ -5,6 +5,7 @@ import com.two.http_api.model.User;
 import com.two.serviceusers.authentication.AuthenticationDao;
 import com.two.serviceusers.users.CoupleDao;
 import com.two.serviceusers.users.UserDao;
+import com.two.serviceusers.users.UserNotExistsException;
 import lombok.AllArgsConstructor;
 import org.hashids.Hashids;
 import org.slf4j.Logger;
@@ -12,8 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -76,19 +75,13 @@ public class ConnectService {
     }
 
     /**
+     * @param uid the users ID.
      * @return the user.
-     * @throws ResponseStatusException Bad Request if the user does not exist.
+     * @throws UserNotExistsException if the user does not exist.
      */
-    private User getUser(int uid) {
+    private User getUser(int uid) throws UserNotExistsException {
         logger.info("Retrieving user {}.", uid);
-        Optional<User> userOptional = userDao.getUser(uid);
-
-        if (userOptional.isEmpty()) {
-            logger.warn("User {} does not exist.", uid);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
-
-        return userOptional.get();
+        return userDao.getUser(uid, User.class).orElseThrow(UserNotExistsException::new);
     }
 
 }

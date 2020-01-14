@@ -5,6 +5,7 @@ import com.two.http_api.model.User;
 import com.two.serviceusers.authentication.AuthenticationDao;
 import com.two.serviceusers.users.CoupleDao;
 import com.two.serviceusers.users.UserDao;
+import com.two.serviceusers.users.UserNotExistsException;
 import dev.testbed.TestBed;
 import org.hashids.Hashids;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,9 +25,9 @@ import static org.mockito.Mockito.*;
 class ConnectServiceTest {
 
     private TestBuilder tb;
-    private User user = new User(1, null, null, "gerry@two.com", "Gerry", "Fletcher");
-    private User partner = new User(2, null, null, "test@two.com", "Partner", "Last Name");
-    private User connectedUser = new User(1, 2, 3, "gerry@two.com", "Gerry", "Fletcher");
+    private User user = User.builder().uid(1).pid(null).cid(null).firstName("Two").lastName("TwoL").build();
+    private User partner = User.builder().uid(2).pid(null).cid(null).firstName("One").lastName("OneL").build();
+    private User connectedUser = User.builder().uid(1).pid(2).cid(3).firstName("Two").lastName("TwoL").build();
     private Tokens tokens = new Tokens("refresh-token", "access-token");
 
     @BeforeEach
@@ -62,8 +63,8 @@ class ConnectServiceTest {
 
         connectService.connectUsers(user.getUid(), "testConnectCode");
 
-        verify(tb.getDependency(UserDao.class)).getUser(user.getUid());
-        verify(tb.getDependency(UserDao.class)).getUser(partner.getUid());
+        verify(tb.getDependency(UserDao.class)).getUser(user.getUid(), User.class);
+        verify(tb.getDependency(UserDao.class)).getUser(partner.getUid(), User.class);
     }
 
     @Test
@@ -98,8 +99,7 @@ class ConnectServiceTest {
         ConnectService connectService = tb.valid().whenGetUserReturn(user.getUid(), empty()).build();
 
         assertThatThrownBy(() -> connectService.connectUsers(user.getUid(), "testConnectCode"))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST);
+                .isInstanceOf(UserNotExistsException.class);
     }
 
     @Test
@@ -108,8 +108,7 @@ class ConnectServiceTest {
         ConnectService connectService = tb.valid().whenGetUserReturn(partner.getUid(), empty()).build();
 
         assertThatThrownBy(() -> connectService.connectUsers(user.getUid(), "testConnectCode"))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST);
+                .isInstanceOf(UserNotExistsException.class);
     }
 
     @Test
@@ -127,7 +126,7 @@ class ConnectServiceTest {
     @Test
     @DisplayName("it should throw a Bad Request exception if the partner already has a partner")
     void partnerHasPartner() {
-        User connectedPartner = connectedUser.withUid(2);
+        User connectedPartner = connectedUser.toBuilder().uid(2).build();
         ConnectService connectService = tb.valid().whenGetUserReturn(partner.getUid(), of(connectedPartner)).build();
 
         assertThatThrownBy(() -> connectService.connectUsers(user.getUid(), "testConnectCode"))
@@ -156,7 +155,7 @@ class ConnectServiceTest {
         }
 
         TestBuilder whenGetUserReturn(int uid, Optional<User> optionalUser) {
-            when(getDependency(UserDao.class).getUser(uid)).thenReturn(optionalUser);
+            when(getDependency(UserDao.class).getUser(uid, User.class)).thenReturn(optionalUser);
             return this;
         }
 
